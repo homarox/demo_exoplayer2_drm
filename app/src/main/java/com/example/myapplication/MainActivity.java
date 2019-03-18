@@ -104,12 +104,6 @@ public class MainActivity extends AppCompatActivity {
         // END
     }
 
-    private MediaSource buildMediaSource(Uri uri) {
-        return new ExtractorMediaSource.Factory(
-                new DefaultHttpDataSourceFactory("exoplayer-codelab")).
-                createMediaSource(uri);
-    }
-
     private void initResource() {
         videoView = findViewById(R.id.video_view);
         txtVideoTitle = findViewById(R.id.txt_video_info);
