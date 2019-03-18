@@ -8,6 +8,7 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:background="@color/background_title"
         android:id="@+id/txt_video_info"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -19,9 +20,10 @@
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:focusable="true"
         app:show_timeout="5000"
         app:fastforward_increment="10000"
         app:rewind_increment="10000"
-        android:focusable="true"
+        app:resize_mode="fixed_width"
         />
 </LinearLayout>

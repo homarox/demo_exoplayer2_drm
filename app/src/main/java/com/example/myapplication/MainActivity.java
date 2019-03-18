@@ -3,19 +3,32 @@ package com.example.myapplication;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.myapplication.player.DashRendererBuilder;
+import com.example.myapplication.player.DemoPlayer;
+import com.example.myapplication.player.WidevineTestMediaDrmCallback;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
+import com.google.android.exoplayer2.LoadControl;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
+import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -33,12 +46,19 @@ public class MainActivity extends AppCompatActivity {
 
     private long playbackPosition;
     private int currentWindow;
-    private boolean playWhenReady = true; // Auto Play
+    private boolean playWhenReady = true;
 
     private DataSource.Factory mediaDataSourceFactory;
     private BandwidthMeter bandwidthMeter;
     private DefaultTrackSelector trackSelector;
     boolean haveStartPosition = currentWindow != C.INDEX_UNSET;
+    private LoadControl defaultLoadControl;
+
+    private String contentUri = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
+    private ExoPlayer.EventListener playerEventListener;
+    private DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
+
+    private final String LOG = "ExoPlayerLog";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,48 +72,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initPlayer() {
-        /* Advance
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
-        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory((com.google.android.exoplayer2.upstream.BandwidthMeter) bandwidthMeter);
-        TrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 
-        // Initialize the player
-        player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
-        // Initialize ExoPlayerView
-        videoView.setPlayer(player);
-
-        // Produces DataSource instances through which media data is loaded.
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this,"DemoExoDRM"));
-        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
-        // Media Source
-        Uri videoUri = Uri.parse("https://bestvpn.org/html5demos/assets/dizzy.mp4");
-        MediaSource videoSource = new ExtractorMediaSource(videoUri, dataSourceFactory, extractorsFactory, null, null);
-
-        // Prepare player
-        player.prepare(videoSource);
-        */
-
-        // Simple
+        // Simple Player
         if (player == null) {
+            defaultLoadControl = new DefaultLoadControl();
+//            drmSessionManager
+
             bandwidthMeter = new DefaultBandwidthMeter();
             mediaDataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "mediaPlayerSample"), (TransferListener<? super DataSource>) bandwidthMeter);
+
             TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
             trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 
-//            player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(this), new DefaultTrackSelector(), new DefaultLoadControl());
-
-            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector);
+            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector); // No DRM
+//            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, defaultLoadControl, drmSessionManager); // with DRM
 
             videoView.setPlayer(player);
 
-            player.setPlayWhenReady(playWhenReady);
+            player.setPlayWhenReady(playWhenReady);  // Set Auto Play
+            player.setRepeatMode(Player.REPEAT_MODE_ALL);
+            player.addListener(playerEventListener);
 
             if (haveStartPosition) {
                 player.seekTo(currentWindow, playbackPosition);
             }
         }
 
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse("https://bestvpn.org/html5demos/assets/dizzy.mp4"));
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(contentUri));
 
         player.prepare(mediaSource, !haveStartPosition, false);
         // END
@@ -108,6 +113,58 @@ public class MainActivity extends AppCompatActivity {
     private void initResource() {
         videoView = findViewById(R.id.video_view);
         txtVideoTitle = findViewById(R.id.txt_video_info);
+        drmSessionManager = null;
+        playerEventListener = new ExoPlayer.EventListener(){
+            @Override
+            public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+                Log.i(LOG,"onTimelineChanged");
+            }
+
+            @Override
+            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+                Log.i(LOG,"onTracksChanged");
+            }
+
+            @Override
+            public void onLoadingChanged(boolean isLoading) {
+                Log.i(LOG,"onLoadingChanged");
+            }
+
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                Log.i(LOG,"onPlayerStateChanged");
+            }
+
+            @Override
+            public void onRepeatModeChanged(int repeatMode) {
+                Log.i(LOG,"onRepeatModeChanged");
+            }
+
+            @Override
+            public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+                Log.i(LOG,"onShuffleModeEnabledChanged");
+            }
+
+            @Override
+            public void onPlayerError(ExoPlaybackException error) {
+                Log.i(LOG,"onPlayerError");
+            }
+
+            @Override
+            public void onPositionDiscontinuity(int reason) {
+                Log.i(LOG,"onPositionDiscontinuity");
+            }
+
+            @Override
+            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+                Log.i(LOG,"onPlaybackParametersChanged");
+            }
+
+            @Override
+            public void onSeekProcessed() {
+                Log.i(LOG,"onSeekProcessed");
+            }
+        };
     }
 
     @Override
@@ -160,5 +217,13 @@ public class MainActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }
+
+    private DemoPlayer.RendererBuilder getRendererBuilder() {
+        String userAgent = "ExoPlayerSample";
+        String contentId = "";
+        String provider = "widevine_test";
+        return new DashRendererBuilder(this, userAgent, contentUri,
+                new WidevineTestMediaDrmCallback(contentId,provider));
     }
 }
