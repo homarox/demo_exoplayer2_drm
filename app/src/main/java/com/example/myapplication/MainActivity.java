@@ -53,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
     boolean haveStartPosition = currentWindow != C.INDEX_UNSET;
     private LoadControl defaultLoadControl;
 
-    private String contentUri = "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"; // DASH Video with DRM
-//    private String contentUri = "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29.84308FF04844498CE6FBCE4731507882B8307798&key=ik0"; // DASH Video with no DRM
+//    private String contentUri = "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"; // DASH Video with DRM
+    private String contentUri = "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"; // DASH Video with DRM Clear
+//    private String contentUri = "https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0"; // DASH Video with no DRM
 //    private String contentUri = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"; // Normal Video
     private ExoPlayer.EventListener playerEventListener;
     private DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
@@ -216,11 +217,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private MediaSource buildeMediaSource (Uri uri){
-        /* DASH Video with no DRM
+        /* DASH Video with no DRM and with DRM Clear*/
         DataSource.Factory manifestDataSourceFactory = new DefaultHttpDataSourceFactory("ua");
         DashChunkSource.Factory dashChunkSourceFactory = new DefaultDashChunkSource.Factory(new DefaultHttpDataSourceFactory("ua", BANDWIDTH_METER));
         return new DashMediaSource.Factory(dashChunkSourceFactory, manifestDataSourceFactory).createMediaSource(uri);
-        */
+        /**/
 
         /* use for No DRM content
         return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(contentUri)); // 1
