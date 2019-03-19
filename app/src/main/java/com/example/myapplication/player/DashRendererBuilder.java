@@ -38,11 +38,7 @@ import com.google.android.exoplayer.util.Util;
 
 import java.io.IOException;
 
-/**
- * Created by hassanabid on 4/25/16.
- */
 public class DashRendererBuilder implements DemoPlayer.RendererBuilder {
-
 
     private static final String TAG = "DashRendererBuilder";
 
@@ -62,7 +58,6 @@ public class DashRendererBuilder implements DemoPlayer.RendererBuilder {
     private final MediaDrmCallback drmCallback;
 
     private AsyncRendererBuilder currentAsyncBuilder;
-
 
     public DashRendererBuilder(Context context, String userAgent, String url,
                                MediaDrmCallback drmCallback) {
@@ -88,7 +83,6 @@ public class DashRendererBuilder implements DemoPlayer.RendererBuilder {
         }
 
     }
-
 
     private static final class AsyncRendererBuilder
             implements ManifestFetcher.ManifestCallback<MediaPresentationDescription>, UtcTimingElementResolver.UtcTimingCallback {
@@ -250,6 +244,5 @@ public class DashRendererBuilder implements DemoPlayer.RendererBuilder {
             return securityLevelProperty.equals("L1") ? SECURITY_LEVEL_1 : securityLevelProperty
                     .equals("L3") ? SECURITY_LEVEL_3 : SECURITY_LEVEL_UNKNOWN;
         }
-
     }
 }

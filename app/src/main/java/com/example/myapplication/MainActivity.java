@@ -7,9 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import com.example.myapplication.player.DashRendererBuilder;
-import com.example.myapplication.player.DemoPlayer;
-import com.example.myapplication.player.WidevineTestMediaDrmCallback;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -25,6 +22,9 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.dash.DashChunkSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -33,9 +33,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Util;
 
 public class MainActivity extends AppCompatActivity {
@@ -48,17 +46,21 @@ public class MainActivity extends AppCompatActivity {
     private int currentWindow;
     private boolean playWhenReady = true;
 
-    private DataSource.Factory mediaDataSourceFactory;
+//    private DataSource.Factory mediaDataSourceFactory;
+    private DefaultHttpDataSourceFactory mediaDataSourceFactory;
     private BandwidthMeter bandwidthMeter;
     private DefaultTrackSelector trackSelector;
     boolean haveStartPosition = currentWindow != C.INDEX_UNSET;
     private LoadControl defaultLoadControl;
 
-    private String contentUri = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
+    private String contentUri = "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"; // DASH Video with DRM
+//    private String contentUri = "http://www.youtube.com/api/manifest/dash/id/3aa39fa2cc27967f/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=A2716F75795F5D2AF0E88962FFCD10DB79384F29.84308FF04844498CE6FBCE4731507882B8307798&key=ik0"; // DASH Video with no DRM
+//    private String contentUri = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"; // Normal Video
     private ExoPlayer.EventListener playerEventListener;
     private DefaultDrmSessionManager<FrameworkMediaCrypto> drmSessionManager;
 
     private final String LOG = "ExoPlayerLog";
+    private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 //            drmSessionManager
 
             bandwidthMeter = new DefaultBandwidthMeter();
-            mediaDataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "mediaPlayerSample"), (TransferListener<? super DataSource>) bandwidthMeter);
+            mediaDataSourceFactory = new DefaultHttpDataSourceFactory("mediaPlayerSample");
 
             TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(bandwidthMeter);
             trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(contentUri));
+        MediaSource mediaSource = buildeMediaSource(Uri.parse(contentUri));
 
         player.prepare(mediaSource, !haveStartPosition, false);
         // END
@@ -213,11 +215,15 @@ public class MainActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
     }
 
-    private DemoPlayer.RendererBuilder getRendererBuilder() {
-        String userAgent = "ExoPlayerSample";
-        String contentId = "";
-        String provider = "widevine_test";
-        return new DashRendererBuilder(this, userAgent, contentUri,
-                new WidevineTestMediaDrmCallback(contentId,provider));
+    private MediaSource buildeMediaSource (Uri uri){
+        /* DASH Video with no DRM
+        DataSource.Factory manifestDataSourceFactory = new DefaultHttpDataSourceFactory("ua");
+        DashChunkSource.Factory dashChunkSourceFactory = new DefaultDashChunkSource.Factory(new DefaultHttpDataSourceFactory("ua", BANDWIDTH_METER));
+        return new DashMediaSource.Factory(dashChunkSourceFactory, manifestDataSourceFactory).createMediaSource(uri);
+        */
+
+        /* use for No DRM content
+        return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(contentUri)); // 1
+*/
     }
 }

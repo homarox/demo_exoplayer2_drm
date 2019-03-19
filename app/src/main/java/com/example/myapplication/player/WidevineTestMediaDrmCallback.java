@@ -10,10 +10,6 @@ import com.google.android.exoplayer.util.Util;
 import java.io.IOException;
 import java.util.UUID;
 
-/**
- * Created by hassanabid on 4/25/16.
- */
-
 @TargetApi(18)
 public class WidevineTestMediaDrmCallback implements MediaDrmCallback {
 

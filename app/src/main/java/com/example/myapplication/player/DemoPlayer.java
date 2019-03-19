@@ -1,10 +1,5 @@
 package com.example.myapplication.player;
 
-/**
- * Created by hassanabid on 4/24/16.
- */
-
-
 import android.media.MediaCodec;
 import android.os.Handler;
 import android.os.Looper;
@@ -54,7 +49,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
         MediaCodecAudioTrackRenderer.EventListener, StreamingDrmSessionManager.EventListener,
         DashChunkSource.EventListener, TextRenderer,MetadataTrackRenderer.MetadataRenderer<List<Id3Frame>>, DebugTextViewHelper.Provider{
 
-
     /**
      * Builds renderers for the player.
      */
@@ -76,7 +70,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
         void cancel();
     }
 
-
     /**
      * A listener for core events.
      */
@@ -86,8 +79,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
         void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
                                 float pixelWidthHeightRatio);
     }
-
-
 
     /**
      * A listener for internal errors.
@@ -108,8 +99,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
         void onDrmSessionManagerError(Exception e);
     }
 
-
-
     /**
      * A listener for debugging information.
      */
@@ -127,7 +116,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
         void onAvailableRangeChanged(int sourceId, TimeRange availableRange);
     }
 
-
     /**
      * A listener for receiving notifications of timed text.
      */
@@ -141,8 +129,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
     public interface Id3MetadataListener {
         void onId3Metadata(List<Id3Frame> id3Frames);
     }
-
-
 
     // Constants pulled into this class for convenience.
     public static final int STATE_IDLE = ExoPlayer.STATE_IDLE;
@@ -368,8 +354,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
         player.release();
     }
 
-
-
     /**
      * ExoPlayer Listener methods
      */
@@ -461,7 +445,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
     /**
      * MediaVideoCodecTrackRenderer Listener methods
      */
-
     @Override
     public void onDroppedFrames(int count, long elapsed) {
         if(infoListener != null) {
@@ -508,7 +491,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
     /**
      * MediaAudiCodecTrackRenderer Listener methods
      */
-
     @Override
     public void onAudioTrackInitializationError(AudioTrack.InitializationException e) {
 
@@ -534,11 +516,9 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
 
     }
 
-
     /**
      * StreamingDRMSessionManager Listener methods
      */
-
     @Override
     public void onDrmKeysLoaded() {
 
@@ -552,7 +532,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
         }
     }
 
-
     /**
      * DashChunkSource Listener methods
      */
@@ -563,7 +542,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
             infoListener.onAvailableRangeChanged(sourceId,availableRange);
         }
     }
-
 
     /**
      * TextRenderer methods
@@ -582,7 +560,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
             id3MetadataListener.onId3Metadata(metadata);
         }
     }
-
 
     @Override
     public long getCurrentPosition() {
@@ -625,8 +602,6 @@ public class DemoPlayer implements ExoPlayer.Listener,ChunkSampleSource.EventLis
     /* package */ Handler getMainHandler() {
         return mainHandler;
     }
-
-
 
     private void pushSurface(boolean blockForSurfacePush) {
         if (videoRenderer == null) {
