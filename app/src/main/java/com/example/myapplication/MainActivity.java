@@ -1,12 +1,16 @@
 package com.example.myapplication;
 
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.myapplication.player.DashRendererBuilder;
+import com.example.myapplication.player.DemoPlayer;
+import com.example.myapplication.player.WidevineTestMediaDrmCallback;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -19,7 +23,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashChunkSource;
@@ -40,11 +43,13 @@ public class MainActivity extends AppCompatActivity {
 
     private PlayerView videoView;
     private TextView txtVideoTitle;
-    private SimpleExoPlayer player;
+    private SimpleExoPlayer player; // For nonDRM or DRM Clear
+    private DemoPlayer playerDrm; // For DRM
 
     private long playbackPosition;
     private int currentWindow;
     private boolean playWhenReady = true;
+    private SurfaceView surfaceView;
 
 //    private DataSource.Factory mediaDataSourceFactory;
     private DefaultHttpDataSourceFactory mediaDataSourceFactory;
@@ -62,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final String LOG = "ExoPlayerLog";
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
+    private String userAgent = Util.getUserAgent(this,"ExoPlayerSample");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private void initPlayer() {
 
         // Simple Player
-        if (player == null) {
+        if (player == null || playerDrm == null) {
             defaultLoadControl = new DefaultLoadControl();
 //            drmSessionManager
 
@@ -90,8 +96,6 @@ public class MainActivity extends AppCompatActivity {
             player = ExoPlayerFactory.newSimpleInstance(this, trackSelector); // No DRM
 //            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, defaultLoadControl, drmSessionManager); // with DRM
 
-            videoView.setPlayer(player);
-
             player.setPlayWhenReady(playWhenReady);  // Set Auto Play
             player.setRepeatMode(Player.REPEAT_MODE_ALL);
             player.addListener(playerEventListener);
@@ -99,11 +103,18 @@ public class MainActivity extends AppCompatActivity {
             if (haveStartPosition) {
                 player.seekTo(currentWindow, playbackPosition);
             }
+
+            playerDrm = new DemoPlayer(new DashRendererBuilder(this, userAgent, contentUri,
+                    new WidevineTestMediaDrmCallback("","widevine_test")));
+
+//            videoView.setPlayer(player);
+            playerDrm.setSurface(surfaceView.getHolder().getSurface());
         }
 
         MediaSource mediaSource = buildeMediaSource(Uri.parse(contentUri));
 
         player.prepare(mediaSource, !haveStartPosition, false);
+        playerDrm.prepare();
         // END
     }
 
@@ -111,6 +122,9 @@ public class MainActivity extends AppCompatActivity {
         videoView = findViewById(R.id.video_view);
         txtVideoTitle = findViewById(R.id.txt_video_info);
         drmSessionManager = null;
+        surfaceView = (SurfaceView) findViewById(R.id.surface_view);
+        surfaceView.getHolder().addCallback(this);
+
         playerEventListener = new ExoPlayer.EventListener(){
             @Override
             public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
@@ -217,12 +231,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private MediaSource buildeMediaSource (Uri uri){
+        String userAgent = Util.getUserAgent(this,"ExoPlayerSample");
+
         /* DASH Video with no DRM and with DRM Clear*/
         DataSource.Factory manifestDataSourceFactory = new DefaultHttpDataSourceFactory("ua");
         DashChunkSource.Factory dashChunkSourceFactory = new DefaultDashChunkSource.Factory(new DefaultHttpDataSourceFactory("ua", BANDWIDTH_METER));
         return new DashMediaSource.Factory(dashChunkSourceFactory, manifestDataSourceFactory).createMediaSource(uri);
-        /**/
 
+
+        /* DASH Video with DRM and offline Key
+        return (MediaSource) new DashRendererBuilder(this, userAgent, uri.toString(),
+                new WidevineTestMediaDrmCallback("","widevine_test"));
+        */
         /* use for No DRM content
         return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(contentUri)); // 1
 */
