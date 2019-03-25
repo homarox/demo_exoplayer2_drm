@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnExtractSc, btnDrmClearSc, btnDrmSecureSc, btnDashNoDrmSc;
     private long mLastClickTime = 0;
     private String contentUriDrmSecure = "https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd"; // DASH Video with DRM
-    private String contentUriDrmClear = "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"; // DASH Video with DRM Clear
+    private String contentUriDrmClear = "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_hd.mpd"; // DASH Video with DRM Clear
     private String contentUriDash = "https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0"; // DASH Video with no DRM
     private String contentUriNormal = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4"; // Normal Video
     private Intent intentPlayer;

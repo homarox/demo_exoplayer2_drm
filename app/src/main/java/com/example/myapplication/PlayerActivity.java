@@ -119,8 +119,6 @@ public class PlayerActivity extends AppCompatActivity {
         }
 
         buildeMediaSource(Uri.parse(contentUri));
-//        MediaSource mediaSource = buildeMediaSource(Uri.parse(contentUri));
-
         player.prepare(mediaSource, !haveStartPosition, false);
         // END
     }
@@ -260,6 +258,7 @@ public class PlayerActivity extends AppCompatActivity {
             case EXTRACTOR_MS:
                 mediaSource = new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(Uri.parse(contentUri));
             case DRM_SECURE_MS:
+                // Not Complete
                 break;
 
             default:
