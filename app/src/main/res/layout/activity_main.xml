@@ -8,22 +8,43 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:background="@color/background_title"
-        android:id="@+id/txt_video_info"
-        android:textSize="30sp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="30dp"
         android:textStyle="bold"
-        android:text="Video Info"
+        android:textSize="@dimen/normal_txt_size"
+        android:text="@string/menu_source_main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.google.android.exoplayer2.ui.PlayerView
-        android:id="@+id/video_view"
+    <Button
+        android:id="@+id/btn_extractor_ms"
+        android:textSize="@dimen/txt_size_main_btn"
+        android:text="Extractor MediaSource"
+        android:layout_margin="10dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:focusable="true"
-        app:show_timeout="5000"
-        app:fastforward_increment="10000"
-        app:rewind_increment="10000"
-        app:resize_mode="fixed_width"
-        />
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btn_dash_no_drm"
+        android:textSize="@dimen/txt_size_main_btn"
+        android:text="DASH Video no DRM MediaSource"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btn_drm_clear_ms"
+        android:textSize="@dimen/txt_size_main_btn"
+        android:text="DRM Clear MediaSource"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/btn_drm_sc_ms"
+        android:textSize="@dimen/txt_size_main_btn"
+        android:text="DRM Secure MediaSource"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

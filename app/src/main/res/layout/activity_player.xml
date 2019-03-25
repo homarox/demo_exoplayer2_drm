@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PlayerActivity"
+    android:orientation="vertical">
+    <TextView
+        android:background="@color/background_title"
+        android:id="@+id/txt_video_info"
+        android:textSize="@dimen/normal_txt_size"
+        android:textStyle="bold"
+        android:text="Video Info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/video_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusable="true"
+        app:show_timeout="5000"
+        app:fastforward_increment="10000"
+        app:rewind_increment="10000"
+        app:resize_mode="fixed_width"
+        />
+</LinearLayout>
